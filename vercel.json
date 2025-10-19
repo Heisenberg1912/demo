@@ -1,17 +1,8 @@
 {
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "client/dist"
-      }
-    },
-    {
-      "src": "api/index.mjs",
-      "use": "@vercel/node"
-    }
-  ],
+  "framework": "vite",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "outputDirectory": "client/dist",
   "functions": {
     "api/index.mjs": {
       "memory": 1024,
