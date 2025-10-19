@@ -1,8 +1,22 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
 const CHAT_MODEL =
   process.env.MATTERS_CHAT_MODEL || process.env.GEMINI_MODEL || "gemini-1.5-flash-latest";
+let cachedGemini;
+let cachedKey;
+
+const getGemini = () => {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) {
+    return null;
+  }
+  if (cachedGemini && cachedKey === key) {
+    return cachedGemini;
+  }
+  cachedGemini = new GoogleGenerativeAI(key);
+  cachedKey = key;
+  return cachedGemini;
+};
 
 const CIVIL_KEYWORDS = [
   "foundation",
@@ -43,8 +57,6 @@ const ARCHITECTURE_KEYWORDS = [
   "circulation",
 ];
 
-const genAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
-
 const clampHistory = (messages = []) => {
   const copy = [...messages];
   return copy.slice(-8);
@@ -78,6 +90,7 @@ const buildInstruction = (persona, mode) => {
 };
 
 export const chatWithAssistant = async ({ messages = [], mode }) => {
+  const genAI = getGemini();
   if (!genAI) {
     const err = new Error("Gemini API key not configured for assistant.");
     err.status = 503;
@@ -100,13 +113,21 @@ export const chatWithAssistant = async ({ messages = [], mode }) => {
 
   const prompt = [instruction, "Conversation so far:", transcript || "User: Hello", "Assistant:"].filter(Boolean).join("\n\n");
 
-  const model = genAI.getGenerativeModel({ model: CHAT_MODEL });
-  const result = await model.generateContent(prompt);
-  const response = await result.response;
-  const text =
-    response?.text?.() ||
-    response?.candidates?.[0]?.content?.parts?.map((part) => part.text).join("\n") ||
-    "";
+  let text = "";
+  try {
+    const model = genAI.getGenerativeModel({ model: CHAT_MODEL });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    text =
+      response?.text?.() ||
+      response?.candidates?.[0]?.content?.parts?.map((part) => part.text).join("\n") ||
+      "";
+  } catch (error) {
+    const wrapped = new Error(`Gemini assistant request failed: ${error.message || error}`);
+    wrapped.status = 502;
+    wrapped.cause = error;
+    throw wrapped;
+  }
 
   if (!text.trim()) {
     const err = new Error("Assistant failed to produce a response.");

@@ -3,12 +3,35 @@ import path from 'path';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
-const STORAGE_ROOT = path.resolve(process.cwd(), 'storage');
+import logger from '../utils/logger.js';
+
+const computeStorageRoot = () => {
+  const envRoot = process.env.ASSET_STORAGE_ROOT;
+  if (envRoot) {
+    return path.resolve(envRoot);
+  }
+
+  if (process.env.VERCEL) {
+    return path.join('/tmp', 'builtattic-storage');
+  }
+
+  return path.resolve(process.cwd(), 'storage');
+};
+
+const STORAGE_ROOT = computeStorageRoot();
 const SECURE_DIR = path.join(STORAGE_ROOT, 'secure');
+let warnedEphemeral = false;
 
 function ensureDirs() {
-  if (!fs.existsSync(STORAGE_ROOT)) fs.mkdirSync(STORAGE_ROOT);
-  if (!fs.existsSync(SECURE_DIR)) fs.mkdirSync(SECURE_DIR);
+  try {
+    fs.mkdirSync(SECURE_DIR, { recursive: true });
+  } catch (error) {
+    logger.error('Failed to prepare storage directory', {
+      storageRoot: STORAGE_ROOT,
+      error: error.message,
+    });
+    throw error;
+  }
 }
 
 function getEncryptionKey() {
@@ -30,7 +53,7 @@ export async function storeEncryptedBuffer(buffer, { filename }) {
   const key = `${Date.now()}-${crypto.randomBytes(6).toString('hex')}.bin`;
   const storagePath = path.join(SECURE_DIR, key);
   fs.writeFileSync(storagePath, encrypted);
-  return {
+  const result = {
     key,
     storagePath,
     sizeBytes: buffer.length,
@@ -39,6 +62,14 @@ export async function storeEncryptedBuffer(buffer, { filename }) {
     checksum,
     originalName: filename,
   };
+  if (process.env.VERCEL && !warnedEphemeral) {
+    warnedEphemeral = true;
+    logger.warn(
+      'Asset stored on ephemeral filesystem. Configure persistent storage (e.g. S3, Vercel Blob) for production use.',
+      { storageRoot: STORAGE_ROOT }
+    );
+  }
+  return result;
 }
 
 export function generateDownloadToken(assetId, { expiresIn = '10m' } = {}) {
@@ -63,4 +94,3 @@ export function readDecryptedAsset(asset) {
   const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
   return decrypted;
 }
-

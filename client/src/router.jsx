@@ -298,21 +298,21 @@ const Amazon = () => {
                     to={`/Buy`}
                     state={{ item }}
                     className="px-3 py-1.5 bg-black/60 text-white rounded-2xl shadow hover:bg-gray-800 transition text-sm"
-                    style={{ fontFamily: "SF Pro Display, Arial, sans-serif" }}
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                   >
                     Buy
                   </Link>
                   <button
                     onClick={() => handleAddToWishlist(item)}
                     className="px-3 py-1.5 bg-pink-50 text-pink-700 rounded-2xl shadow hover:bg-pink-100 transition border border-pink-200 text-sm"
-                    style={{ fontFamily: "SF Pro Display, Arial, sans-serif" }}
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                   >
                     Wishlist
                   </button>
                   <button
                     onClick={() => handleAddToCart(item)}
                     className="px-3 py-1.5 bg-gray-100 text-gray-900 rounded-2xl shadow hover:bg-gray-200 transition border border-gray-300 text-sm"
-                    style={{ fontFamily: "SF Pro Display, Arial, sans-serif" }}
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                   >
                     Add to Cart
                   </button>

@@ -25,6 +25,7 @@ ENV PORT=8080
 
 COPY --from=server-deps --chown=node:node /workspace/server/node_modules ./server/node_modules
 COPY --chown=node:node server ./server
+COPY --chown=node:node Builtattic_Demo_Agreement.docx ./Builtattic_Demo_Agreement.docx
 COPY --from=client-deps --chown=node:node /workspace/client/dist ./client/dist
 
 USER node

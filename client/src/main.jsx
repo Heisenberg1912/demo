@@ -7,24 +7,13 @@ import {
 
 import App from "./App";
 
-import CartPage from "./pages/CartPage";
-import Wishlist from "./pages/Wishlist";
 import "./index.css";
 import { CurrencyProvider } from "./components/CurrencyProvider";
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "*",
     element: <App />,
-    children: [
-
-      { path: "cart", element: <CartPage /> },
-      { path: "wishlist", element: <Wishlist /> },
-      {
-        path: "*",
-        element: <div style={{ padding: 24 }}>404 - Not Found</div>,
-      },
-    ],
   },
 ]);
 

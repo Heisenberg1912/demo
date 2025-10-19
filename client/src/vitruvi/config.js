@@ -1,18 +1,23 @@
 const envBase = import.meta.env.VITE_VITRUVI_API_BASE;
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
-let base = envBase && typeof envBase === "string" ? envBase : "";
+const normalise = (value) => (value && typeof value === "string" ? value.trim() : "");
 
-if (!base && apiBaseUrl && typeof apiBaseUrl === "string") {
-  base = apiBaseUrl.replace(/\/api\/?$/, "");
+let base = normalise(envBase);
+
+if (!base && normalise(apiBaseUrl)) {
+  const cleaned = normalise(apiBaseUrl).replace(/\/$/, "");
+  base = /\/vitruvi($|\/)/i.test(cleaned) ? cleaned : `${cleaned}/vitruvi`;
 }
 
-if (!base && typeof window !== "undefined" && window.location?.origin) {
-  base = window.location.origin;
+if (!base) {
+  if (import.meta.env.DEV) {
+    base = "/api/vitruvi";
+  } else if (typeof window !== "undefined") {
+    base = "/api/vitruvi";
+  }
 }
 
-const normalized = base ? base.replace(/\/$/, "") : "";
+const normalisedBase = base.replace(/\/$/, "");
 
-export const API_BASE = normalized && /\/vitruvi($|\/)/i.test(normalized)
-  ? normalized
-  : `${normalized || ""}/vitruvi`;
+export const API_BASE = normalisedBase;

@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "main": "src/index.js",
+  "main": "src/server.js",
   "scripts": {
-    "dev": "nodemon --watch src src/index.js",
-    "start": "cross-env NODE_ENV=production node src/index.js",
+    "dev": "nodemon --watch src src/server.js",
+    "start": "cross-env NODE_ENV=production node src/server.js",
     "seed:superadmin": "node src/seed/superAdmin.js",
     "seed:users": "node src/seed/seedUsers.js",
     "seed:marketplace": "node src/seed/seedMarketplace.js",

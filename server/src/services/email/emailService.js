@@ -8,7 +8,7 @@ export const sendOTPEmail = async (email, otp, purpose = 'verification') => {
       login: {
         subject: 'Your Login Verification Code - Builtatic',
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="font-family: 'Montserrat', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="text-align: center; margin-bottom: 30px;">
               <h1 style="color: #333; margin-bottom: 10px;">Builtatic</h1>
               <h2 style="color: #666; font-weight: normal;">Login Verification</h2>
@@ -36,7 +36,7 @@ export const sendOTPEmail = async (email, otp, purpose = 'verification') => {
       register: {
         subject: 'Welcome to Builtatic - Verify Your Email',
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="font-family: 'Montserrat', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="text-align: center; margin-bottom: 30px;">
               <h1 style="color: #333; margin-bottom: 10px;">Welcome to Builtatic!</h1>
               <h2 style="color: #666; font-weight: normal;">Email Verification</h2>
@@ -64,7 +64,7 @@ export const sendOTPEmail = async (email, otp, purpose = 'verification') => {
       order: {
         subject: 'Order Confirmation Required - Builtatic',
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="font-family: 'Montserrat', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="text-align: center; margin-bottom: 30px;">
               <h1 style="color: #333; margin-bottom: 10px;">Builtatic</h1>
               <h2 style="color: #666; font-weight: normal;">Order Confirmation</h2>
@@ -118,7 +118,7 @@ export const sendWelcomeEmail = async (email, name) => {
       to: email,
       subject: 'Welcome to Builtatic!',
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="font-family: 'Montserrat', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
             <h1 style="color: #333;">Welcome to Builtatic, ${name}!</h1>
           </div>
@@ -170,7 +170,7 @@ export const sendSupportEmailNotification = async ({
       subject: `[Support #${threadId}] New message from ${displayName}`,
       replyTo: process.env.EMAIL_USER,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px;">
+        <div style="font-family: 'Montserrat', Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px;">
           <h2 style="color:#111;">New support chat message</h2>
           <p style="color:#333; margin-bottom:16px;">You received a new message via the marketplace support widget.</p>
           <table style="width:100%; border-collapse:collapse;">

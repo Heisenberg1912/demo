@@ -1,3 +1,60 @@
+# Vercel Deployment Guide
+
+This repository now ships with a production-ready Vercel configuration. The React application is served as a static build from `client/dist`, while the Express API is deployed as a serverless function at `/api`. Follow the checklist below to launch successfully.
+
+## 1. Prepare the Project
+
+- Ensure the repo root is set as the **Project Directory** in Vercel (the configuration lives at `vercel.json`).
+- Build command: `npm run build` (already defined in `package.json`).
+- Output directory: `client/dist` (declared in `vercel.json`).
+- Serverless entry point: `api/index.mjs`, exporting the Express app.
+
+## 2. Required Environment Variables
+
+Configure these in the Vercel dashboard (Project → Settings → Environment Variables). Use the "Production" scope for live deployments and "Preview" for preview builds.
+
+| Variable | Purpose |
+| --- | --- |
+| `MONGO_URI` | Connection string for your MongoDB cluster. |
+| `MONGO_DBNAME` (optional) | Overrides the default database name (`builtattic_dev`). |
+| `JWT_SECRET` | Secret for signing auth tokens. |
+| `CORS_ORIGIN` | Comma-separated origins allowed to call the API. Leave blank to allow all. |
+| `FILE_ENCRYPTION_KEY` | 64-character hex key used for encrypting uploaded assets. |
+| `ASSET_TOKEN_SECRET` | Secret for temporary download tokens. |
+| `REDIS_URL` (optional) | Redis connection used by queue helpers. |
+| `SECRET_MANAGER_KEYS` / `SECRET_MANAGER_PROJECT` (optional) | Only required if you continue using Google Secret Manager. |
+| `GOOGLE_CLIENT_ID`, `GEMINI_API_KEY`, etc. | Feature-specific integrations referenced across the codebase. |
+
+> Tip: Create a `.env.vercel` locally (ignored by Git) to mirror the Vercel configuration for local testing via `vercel dev`.
+
+## 3. Storage Considerations
+
+The API encrypts uploaded assets to disk. In serverless environments the filesystem is **ephemeral**. By default the storage path switches to `/tmp/builtattic-storage` on Vercel. Configure `ASSET_STORAGE_ROOT` to point to a durable provider (e.g., mounted S3 bucket via an integration or the Vercel Blob service) before enabling uploads in production.
+
+## 4. Local Development Parity
+
+- Run `npm install` (root) to install both the client and server dependencies via the `postinstall` hook.
+- Start the Vite dev server: `npm --prefix client run dev` (or `npm run client`).
+- Start the API locally: `npm --prefix server run dev` (requires `MONGO_URI`).
+- For a Vercel-like experience, use `vercel dev`; it reads `vercel.json`, builds the client, and proxies `/api` to the serverless entry point.
+
+## 5. Deploying
+
+1. Commit and push to a branch connected to Vercel. Each push triggers a preview deployment.
+2. Verify preview build logs show `npm run build` succeeded and the serverless function bundled.
+3. Promote to production via the Vercel dashboard once validation passes.
+
+## 6. Post-Deployment Checklist
+
+- [ ] Environment variables configured for Production, Preview, and Development scopes as needed.
+- [ ] MongoDB (and Redis, if used) are reachable from Vercel. Atlas works out of the box; self-hosted DBs require IP allow-lists.
+- [ ] Email/SMS/webhook integrations validated using production credentials.
+- [ ] Background queue workloads assessed—move long-lived workers to dedicated infrastructure if required.
+- [ ] Asset storage migrated off the ephemeral filesystem.
+- [ ] Optional: add custom domain and enable HTTPS from the Vercel dashboard.
+
+---
+
 # Google Cloud Deployment Guide
 
 This project is now configured to run as a single container on Google Cloud Run, with build automation through Cloud Build and secrets sourced from Secret Manager. Follow the steps below to promote your local `.env` configuration into production-ready infrastructure.
@@ -31,6 +88,7 @@ This project is now configured to run as a single container on Google Cloud Run,
    The new bootstrapping code pulls only secrets that are not already present as environment variables, so local overrides still work.
 
 3. Configure non-secret values (e.g., `CORS_ORIGIN`, `LOG_LEVEL`) as standard environment variables on Cloud Run.
+4. Set `API_BASE_URL` to the HTTPS origin of your Cloud Run deployment (for example `https://builtattic-xyz-uc.a.run.app`). The server will append `/api` if missing and uses this value when issuing secure download links in fulfilment emails.
 
 ## 3. Building & Running Locally
 
@@ -87,7 +145,7 @@ Or create a trigger tied to your main branch.
 
 ## 8. Frontend Hosting Options
 
-By default the Express server serves the built React bundle. Alternatives:
+By default the Express server serves the built React bundle. The client build now falls back to the same-origin `/api` endpoint when no Vite env vars are provided, so a single Cloud Run service works out of the box. Alternatives:
 
 1. Host the bundle on Cloud Storage + Cloud CDN, set `SERVE_CLIENT_FROM_API=false`, and point your frontend to the API domain.
 2. Split deployments: one Cloud Run service for API, one for SSR/client if needed.

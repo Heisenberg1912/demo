@@ -1,14 +1,16 @@
-const API =
+const isProd = import.meta.env.PROD
+const defaultApiRoot = isProd ? "/api" : "http://localhost:4000/api"
+
+const resolvedRoot =
   import.meta.env.VITE_MATTERS_API_BASE ??
-  (() => {
-    const root = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL
-    if (!root) return "http://127.0.0.1:8000"
-    const normalized = root.replace(/\/+$/, "")
-    if (/\/(api|v1)$/i.test(normalized)) {
-      return `${normalized.replace(/\/(api|v1)$/i, "")}/matters`
-    }
-    return `${normalized}/matters`
-  })()
+  import.meta.env.VITE_API_BASE_URL ??
+  import.meta.env.VITE_API_URL ??
+  defaultApiRoot
+
+const normalizedRoot = resolvedRoot.replace(/\/+$/, "")
+const API = normalizedRoot.endsWith("/matters")
+  ? normalizedRoot
+  : `${normalizedRoot}/matters`
 
 async function request(path, { method = "GET", body, headers = {} } = {}) {
   const finalHeaders = new Headers(headers)

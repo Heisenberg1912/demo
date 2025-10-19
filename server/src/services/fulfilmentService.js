@@ -5,11 +5,23 @@ import FulfilmentTask from '../models/FulfilmentTask.js';
 import { generateDownloadToken } from './storageService.js';
 import { sendFulfilmentEmail } from './emailService.js';
 
+const resolveApiBase = () => {
+  const configured = process.env.API_BASE_URL && process.env.API_BASE_URL.trim();
+  if (configured) {
+    const normalized = configured.replace(/\/+$/, '');
+    return /\/api$/i.test(normalized) ? normalized : `${normalized}/api`;
+  }
+  const port = process.env.PORT || 4000;
+  return `http://127.0.0.1:${port}/api`;
+};
+
+const API_BASE = resolveApiBase();
+
 function buildDownloadLink(asset) {
   const token = generateDownloadToken(asset._id);
   return {
     asset: asset._id,
-    url: `${process.env.API_BASE_URL || 'http://localhost:4000/api'}/assets/${asset._id}/download?token=${token}`,
+    url: `${API_BASE}/assets/${asset._id}/download?token=${token}`,
     expiresAt: new Date(Date.now() + 10 * 60 * 1000),
   };
 }

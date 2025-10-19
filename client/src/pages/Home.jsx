@@ -464,22 +464,33 @@ const circleMaterials = useMemo(
 
         <div className="border-t-8 border-white"></div>
 
-        {/* Circular Categories */}
-        <section className="py-10 bg-black text-white">
+        {/* Browse Materials */}
+        <section className="py-14 bg-black text-white">
+          {/* Heading */}
+          <div className="max-w-7xl mx-auto px-4 mb-8 text-center">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+              Browse Materials
+            </h2>
+            <p className="mt-2 text-white/70 text-sm">
+              Popular categories to get you started
+            </p>
+          </div>
+
+          {/* Grid */}
           <motion.div
-            className="max-w-7xl mx-auto px-4 grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-6 text-center"
+            className="max-w-7xl mx-auto px-4"
             initial="hidden"
             whileInView="show"
             viewport={{ once: true }}
-            variants={{
-              hidden: {},
-              show: { transition: { staggerChildren: 0.15 } },
-            }}
+            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.15 } } }}
           >
-            {circleMaterials.map((item) => (
-              <CircleItem key={item.name} item={item} />
-            ))}
+            <div className="flex flex-nowrap items-start justify-center gap-3 sm:gap-5 overflow-x-auto pb-2">
+              {circleMaterials.slice(0, 6).map((item) => (
+                <CircleItem key={item.name} item={item} />
+              ))}
+            </div>
           </motion.div>
+
         </section>
 
         {/* Footer with fade in */}
@@ -504,10 +515,18 @@ const CircleItem = ({ item }) => {
   const image = images?.[0];
 
   return (
-    <motion.div className="flex flex-col items-center text-center gap-3">
-      <div className="w-20 h-20 rounded-full overflow-hidden shadow-md mb-2 bg-white flex items-center justify-center">
+    <motion.div className="flex flex-col items-center text-center gap-1">
+      {/* Portrait rounded-rectangle instead of circle */}
+      <div
+        className="w-45 aspect-[3/4] rounded-2xl overflow-hidden shadow-md mb-2 bg-white flex items-center justify-center"
+      >
         {image ? (
-          <img src={image} alt={name} className="h-full w-full object-cover" loading="lazy" />
+          <img
+            src={image}
+            alt={name}
+            className="h-full w-full object-cover"
+            loading="lazy"
+          />
         ) : null}
       </div>
       <span className="text-sm font-medium text-white">{name}</span>

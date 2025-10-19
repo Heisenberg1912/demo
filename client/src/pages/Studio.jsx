@@ -24,7 +24,7 @@ import {
   getStudioImageUrl,
 } from "../utils/imageFallbacks.js";
 
-const MotionLink = motion(Link);
+const MotionLink = motion.create(Link);
 
 const DEFAULT_CATEGORY_ICON = HiOutlineBuildingOffice2;
 const CATEGORY_ICON_MAP = {

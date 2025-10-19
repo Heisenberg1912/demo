@@ -45,7 +45,7 @@ steps:
         IMAGE="$_ARTIFACT_REGION-docker.pkg.dev/$PROJECT_ID/$_REPOSITORY/$_SERVICE:$_VERSION"
         DEPLOY_CMD=(
           gcloud run deploy "$_SERVICE"
-          --image "$IMAGE"
+          --image "$$IMAGE"
           --region "$_REGION"
           --platform managed
           --allow-unauthenticated
@@ -57,13 +57,18 @@ steps:
           --max-instances "$_MAX_INSTANCES"
         )
 
-        if [[ -n "${_ENV_VARS}" ]]; then
-          DEPLOY_CMD+=(--set-env-vars "${_ENV_VARS}")
+        env_payload="$_ENV_VARS"
+        if [[ -n "$env_payload" ]]; then
+          env_string=${env_payload//;/,}
+          DEPLOY_CMD+=(--set-env-vars "$env_string")
         fi
 
-        if [[ -n "${_SECRET_ENV}" ]]; then
-          DEPLOY_CMD+=(--set-secrets "${_SECRET_ENV}")
+        secret_payload="$_SECRET_ENV"
+        if [[ -n "$secret_payload" ]]; then
+          secret_string=${secret_payload//;/,}
+          DEPLOY_CMD+=(--set-secrets "$secret_string")
         fi
+
 
         if [[ -n "${_VPC_CONNECTOR}" ]]; then
           DEPLOY_CMD+=(--vpc-connector "${_VPC_CONNECTOR}")

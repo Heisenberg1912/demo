@@ -9,6 +9,8 @@ import bookingRoutes from './bookingRoutes.js';
 import invoiceRoutes from './invoiceRoutes.js';
 import ticketRoutes from './ticketRoutes.js';
 import activityLogRoutes from './activityLogRoutes.js';
+import accessRequestRoutes from './accessRequests.js';
+import documentsRoutes from './documents.js';
 
 import orderOTPRoutes from './orderOTPRoutes.js';
 
@@ -23,5 +25,7 @@ router.use('/bookings', bookingRoutes);
 router.use('/invoices', invoiceRoutes);
 router.use('/tickets', ticketRoutes);
 router.use('/activity-logs', activityLogRoutes);
+router.use('/access-requests', accessRequestRoutes);
+router.use('/documents', documentsRoutes);
 router.use('/orders-otp', orderOTPRoutes);
 export default router;

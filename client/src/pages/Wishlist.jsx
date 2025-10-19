@@ -139,7 +139,7 @@ const WishlistPage = () => {
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root{--accent:#4f46e5;--muted:#6b7280;--bg:#f8fafc}
-    html,body{height:100%;margin:0;font-family:'Montserrat',system-ui,Arial;color:#0f172a;background:var(--bg)}
+    html,body{height:100%;margin:0;font-family:'Montserrat',sans-serif;color:#0f172a;background:var(--bg)}
     .wrap{max-width:1100px;margin:20px auto;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 8px 30px rgba(2,6,23,0.06)}
     .hero{width:100%;height:44vh;background:#000;position:relative;display:block}
     .hero img{width:100%;height:100%;object-fit:cover;display:block}

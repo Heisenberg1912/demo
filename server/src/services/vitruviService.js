@@ -1,6 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-1.5-flash-latest";
 const GEMINI_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || "imagen-3.0-latest";
 const MAX_PROMPT_CHARS = Number.parseInt(process.env.MAX_PROMPT_CHARS || "4000", 10) || 4000;
@@ -20,15 +19,30 @@ const ANALYSIS_FIELDS = [
   "Sustainability",
 ];
 
-const genAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
+let cachedGemini;
+let cachedKey;
+
+const getGemini = () => {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) {
+    return null;
+  }
+  if (cachedGemini && cachedKey === key) {
+    return cachedGemini;
+  }
+  cachedGemini = new GoogleGenerativeAI(key);
+  cachedKey = key;
+  return cachedGemini;
+};
 
 export async function runAnalyzeAndGenerate(prompt, options = {}) {
   const { analysis, promptAnalysis, designAnalysis, source, warning } = await getAnalysis(prompt, options);
 
   let imagePayload = null;
+  const genAI = getGemini();
   if (genAI && source === "gemini") {
     try {
-      imagePayload = await generateImageWithGemini(prompt, analysis);
+      imagePayload = await generateImageWithGemini(genAI, prompt, analysis);
     } catch (err) {
       console.warn("image_generation_failed", err);
     }
@@ -63,9 +77,10 @@ export async function getAnalysis(prompt, options = {}) {
   let source = "heuristic";
   let warning;
 
+  const genAI = getGemini();
   if (genAI) {
     try {
-      analysis = await analyzeWithGemini(prompt, options);
+      analysis = await analyzeWithGemini(genAI, prompt, options);
       source = "gemini";
     } catch (err) {
       console.warn("analysis_with_gemini_failed", err);
@@ -92,7 +107,7 @@ function trimPrompt(input) {
   return input.length > MAX_PROMPT_CHARS ? `${input.slice(0, MAX_PROMPT_CHARS)}...` : input;
 }
 
-async function analyzeWithGemini(prompt, options) {
+async function analyzeWithGemini(genAI, prompt, options) {
   if (!genAI) {
     throw new Error("Gemini client unavailable");
   }
@@ -132,7 +147,7 @@ async function analyzeWithGemini(prompt, options) {
   return heuristicFallback(prompt);
 }
 
-async function generateImageWithGemini(prompt, analysis) {
+async function generateImageWithGemini(genAI, prompt, analysis) {
   if (!genAI) {
     return null;
   }
